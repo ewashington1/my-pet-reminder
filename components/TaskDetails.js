@@ -16,9 +16,12 @@ const ModalOverlay = styled.div`
 const ModalContainer = styled.div`
   background-color: #fff;
   padding: 20px;
-  border-radius: 5px;
+  border-radius: 15px;
   width: 80%;
   max-width: 500px;
+  box-shadow: 0 0 20px rgba(0, 0, 0, 0.1);
+  border-top: 5px solid #ffafcc;
+  color: #333;
 `;
 
 const CloseButton = styled.button`
@@ -38,13 +41,75 @@ const FormField = styled.div`
 const Label = styled.label`
   display: block;
   margin-bottom: 5px;
+  font-weight: bold;
 `;
 
-export default function TaskDetailsModal({ task, onClose, index }) {
+const StyledInput = styled.input`
+  padding: 10px;
+  width: 100%;
+  border-radius: 5px;
+  border: 1px solid #bde0fe;
+  outline: 2px solid #ffdfeb; // Added outline
+  transition: border-color 0.3s, outline-color 0.3s;
+
+  &:focus {
+    border-color: #ffafcc;
+    outline-color: #ffafcc; // Change outline color on focus
+  }
+`;
+
+const StyledTextarea = styled.textarea`
+  padding: 10px;
+  width: 100%;
+  border-radius: 5px;
+  border: 1px solid #bde0fe;
+  outline: 2px solid #ffdfeb; // Added outline
+  resize: vertical;
+  transition: border-color 0.3s, outline-color 0.3s;
+
+  &:focus {
+    border-color: #ffafcc;
+    outline-color: #ffafcc; // Change outline color on focus
+  }
+`;
+
+const StyledSelect = styled.select`
+  padding: 10px;
+  width: 100%;
+  border-radius: 5px;
+  border: 1px solid #bde0fe;
+  outline: 2px solid #ffdfeb; // Added outline
+  background-color: #ffdfeb;
+  transition: border-color 0.3s, outline-color 0.3s;
+
+  &:focus {
+    border-color: #ffafcc;
+    outline-color: #ffafcc; // Change outline color on focus
+  }
+`;
+
+const SaveButton = styled.button`
+  padding: 10px 20px;
+  background-color: #ffafcc;
+  border: none;
+  color: white;
+  cursor: pointer;
+  font-weight: bold;
+  border-radius: 5px;
+  transition: background-color 0.3s;
+
+  &:hover {
+    background-color: #ffdfeb;
+  }
+`;
+
+export default function TaskDetailsModal({ task, onClose, index, pets }) {
   const [localIsDaily, setIsDaily] = useState(task.isDaily || false);
   const [title, setTitle] = useState(task.title || "");
   const [details, setDetails] = useState(task.details || "");
   const [dateTime, setDateTime] = useState(task.dateTime || "");
+  const [petName, setPetName] = useState(task.petName || ""); // Add petName state
+
   // add for petName
   const handleSave = () => {
     // Logic to save the task details
@@ -53,6 +118,7 @@ export default function TaskDetailsModal({ task, onClose, index }) {
       title: title,
       details: details,
       dateTime: dateTime,
+      petName: petName,
     };
     if (index === null) {
       if (!localIsDaily) {
@@ -96,12 +162,28 @@ export default function TaskDetailsModal({ task, onClose, index }) {
           />
         </FormField>
         <FormField>
+          <Label>Pet Name</Label>
+          <select
+            required
+            value={petName}
+            onChange={(e) => setPetName(e.target.value)}
+          >
+            <option value="">Select a pet</option>
+            {pets.map((pet, i) => (
+              <option key={i} value={pet.name}>
+                {pet.name}
+              </option>
+            ))}
+          </select>
+        </FormField>
+        <FormField>
           <Label>Details</Label>
           <textarea
             value={details}
             onChange={(e) => setDetails(e.target.value)}
           />
         </FormField>
+
         <FormField>
           <Label>
             <input
@@ -109,7 +191,7 @@ export default function TaskDetailsModal({ task, onClose, index }) {
               checked={localIsDaily}
               onChange={() => setIsDaily(!localIsDaily)}
             />
-            Daily Task
+            Daily Task?
           </Label>
           {localIsDaily ? (
             <input

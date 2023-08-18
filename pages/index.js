@@ -17,15 +17,17 @@ const AppName = styled.div`
   font-weight: bold;
   color: black;
   text-shadow: 1px 1px 3px rgba(0, 0, 0, 0.2);
+  mix-blend-mode: soft-light;
+  font-size: 2rem;
 `;
 
 const AddPetButton = styled.button`
-  background-color: black;
+  border-radius: 9px;
+  background: #010000;
+  mix-blend-mode: soft-light;
+  box-shadow: 0px 4px 4px 0px rgba(0, 0, 0, 0.25);
   color: white;
-  border: none;
-  padding: 5px 10px;
-  text-shadow: 1px 1px 3px rgba(0, 0, 0, 0.2);
-  cursor: pointer;
+  padding: 4px 10px 4px 10px;
 `;
 
 const HomePageContainer = styled.div`
@@ -41,7 +43,7 @@ const AddTaskButton = styled.button`
   position: fixed; // Fix the position relative to the browser window
   right: 20px; // 20px from the right
   bottom: 20px; // 20px from the bottom
-  background-color: #ff5757;
+  background-color: #ffafcc;
   color: white;
   border: none;
   border-radius: 50%;
@@ -130,11 +132,24 @@ export default function Home() {
     const updatedDailyTasks = newDaily === null ? [] : newDaily;
     setDailyTasks(updatedDailyTasks || []);
   };
+  const handleDeleteTask = (task, index, isDaily) => {
+    if (isDaily) {
+      const newDailyTasks = [...dailyTasks];
+      newDailyTasks.splice(index, 1);
+      setDailyTasks(newDailyTasks);
+      localStorage.setItem("dailyTasks", JSON.stringify(newDailyTasks));
+    } else {
+      const newUpcomingTasks = [...upcomingTasks];
+      newUpcomingTasks.splice(index, 1);
+      setUpcomingTasks(newUpcomingTasks);
+      localStorage.setItem("upcomingTasks", JSON.stringify(newUpcomingTasks));
+    }
+  };
 
   return (
     <div>
       <TopBar>
-        <AppName>Pet Reminder</AppName>
+        <AppName>treats&tracks</AppName>
         <AddPetButton onClick={() => setIsAddPetModalOpen(true)}>
           Add Pet
         </AddPetButton>
@@ -146,17 +161,26 @@ export default function Home() {
         />
       )}
       <HomePageContainer>
-        <PetImages pets={pets} />
+        <PetImages
+          pets={pets}
+          dailyTasks={dailyTasks}
+          upcomingTasks={upcomingTasks}
+          onEdit={handleEditTask}
+          onDelete={handleDeleteTask}
+        />
+
         <RightSection>
           <TaskDropdown
             title="Daily Tasks"
             tasks={dailyTasks || []}
             onEdit={handleEditTask}
+            onDelete={(task, index) => handleDeleteTask(task, index, true)} // Pass true for daily tasks
           />
           <TaskDropdown
             title="Upcoming Reminders"
             tasks={upcomingTasks || []}
             onEdit={handleEditTask}
+            onDelete={(task, index) => handleDeleteTask(task, index, false)} // Pass false for upcoming reminders
           />
         </RightSection>
       </HomePageContainer>
@@ -167,6 +191,7 @@ export default function Home() {
           task={selectedTask}
           index={editingIndex}
           onClose={handleCloseModal}
+          pets={pets}
         />
       )}
     </div>
